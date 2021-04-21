@@ -34,4 +34,12 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
 $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($router) {
 
+    // Movie Routes
+    $router->get('movies', 'MovieController@index');
+    $router->get('movies/{id}', 'MovieController@show');
+    $router->post('movies', 'MovieController@store');
+    $router->put('movies/{id}', 'MovieController@update');
+    $router->delete('movies/{id}', 'MovieController@destroy');
+
+
 });
