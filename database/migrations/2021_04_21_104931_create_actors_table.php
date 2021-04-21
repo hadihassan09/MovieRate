@@ -14,10 +14,10 @@ class CreateActorsTable extends Migration
     public function up()
     {
         Schema::create('actors', function (Blueprint $table) {
-            $table->primary('id');
+            $table->primary('user_id');
 
-            $table->unsignedBigInteger('id');
-            $table->foreign('id')->references('id')->on('users')
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 

@@ -105,7 +105,8 @@ class MovieController extends Controller
 
         $movie->title = $request->title;
         $movie->description = $request->description;
-        $movie->poster = $request->poster;
+        if($request->poster)
+            $movie->poster = $request->poster;
         $movie->release_date = $request->release_date;
         $movie->save();
 

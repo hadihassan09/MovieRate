@@ -22,7 +22,7 @@ class CreateMoviesDirectorsTable extends Migration
                 ->onUpdate('cascade');
 
             $table->unsignedBigInteger('director_id');
-            $table->foreign('director_id')->references('id')->on('directors')
+            $table->foreign('director_id')->references('user_id')->on('directors')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 

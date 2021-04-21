@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Actor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
-class ExampleController extends Controller
+class ActorController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -24,7 +26,10 @@ class ExampleController extends Controller
      */
     public function index()
     {
-        //
+        $actors = Actor::with('user')->get();
+        return response()->json([
+            'actors' => $actors
+        ]);
     }
 
     /**
@@ -35,7 +40,24 @@ class ExampleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|int|unique:actors,user_id|exists:users,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors'=>$validator->errors()], 422);
+        }
+
+        Actor::create([
+            'user_id' => $request->user_id
+        ]);
+
+        $actor = Actor::with('user')->find($request->user_id);
+
+        return response()->json([
+            'success' => true,
+            'actor' => $actor
+        ]);
     }
 
     /**
@@ -46,7 +68,12 @@ class ExampleController extends Controller
      */
     public function show($id)
     {
-        //
+        $actor = Actor::findOrFail($id);
+
+        return response()->json([
+            'actor' => $actor->user,
+            'success' => true,
+        ]);
     }
 
     /**
@@ -58,7 +85,6 @@ class ExampleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
     }
 
     /**
@@ -69,6 +95,14 @@ class ExampleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $actor = Actor::find($id);
+        if($actor) {
+            $actor->delete();
+            return response()->json([
+                'success' => 'true',
+                'message' => 'Actor Deleted Successfully'
+            ]);
+        }
+        return response()->json(['error'=>'id does not exist'], 404);
     }
 }

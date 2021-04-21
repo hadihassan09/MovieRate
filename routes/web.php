@@ -41,5 +41,9 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->put('movies/{id}', 'MovieController@update');
     $router->delete('movies/{id}', 'MovieController@destroy');
 
-
+    // Actors Route
+    $router->get('actors', 'ActorController@index');
+    $router->get('actors/{id}', 'ActorController@show');
+    $router->post('actors', 'ActorController@store');
+    $router->delete('actors/{id}', 'ActorController@destroy');
 });
