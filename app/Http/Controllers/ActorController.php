@@ -26,7 +26,7 @@ class ActorController extends Controller
      */
     public function index()
     {
-        $actors = Actor::with('user')->get();
+        $actors = Actor::with('user')->with('movies')->get();
         return response()->json([
             'actors' => $actors
         ]);
@@ -52,7 +52,7 @@ class ActorController extends Controller
             'user_id' => $request->user_id
         ]);
 
-        $actor = Actor::with('user')->find($request->user_id);
+        $actor = Actor::with('user')->with('movies')->find($request->user_id);
 
         return response()->json([
             'success' => true,
@@ -69,9 +69,11 @@ class ActorController extends Controller
     public function show($id)
     {
         $actor = Actor::findOrFail($id);
+        $actor['user'] = $actor->user;
+        $actor['movies'] = $actor->movies;
 
         return response()->json([
-            'actor' => $actor->user,
+            'actor' => $actor,
             'success' => true,
         ]);
     }
