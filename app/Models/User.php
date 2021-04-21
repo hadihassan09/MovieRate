@@ -35,4 +35,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return $this->hasMany(Token::class);
     }
+
+    public function actor()
+    {
+        return $this->hasOne(Actor::class);
+    }
+
+    public function director()
+    {
+        return $this->hasOne(Director::class);
+    }
 }
