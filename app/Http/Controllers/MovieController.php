@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Actor;
+use App\Models\Director;
 use App\Models\Movie;
 use App\Models\Trailer;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use mysql_xdevapi\Exception;
 
 class MovieController extends Controller
 {
@@ -28,7 +31,12 @@ class MovieController extends Controller
      */
     public function index()
     {
-        $movies = Movie::with('genres')->with('trailers')->get();
+        $movies = Movie::
+            with('genres')
+            ->with('trailers')
+            ->with('actors')
+            ->with('directors')
+            ->get();
         return response()->json([
             'movies' => $movies,
         ]);
@@ -65,6 +73,7 @@ class MovieController extends Controller
 
         $movie['genres'] = $movie->genres;
         $movie['trailers'] = $movie->trailers;
+        $movie['directors'] = $movie->directors;
 
         return response()->json([
             'movie' => $movie,
@@ -81,13 +90,15 @@ class MovieController extends Controller
     public function show($id)
     {
         $movie = Movie::find($id);
-        $movie['genres'] = $movie->genres;
-        $movie['trailers'] = $movie->trailers;
-
-        if($movie)
+        if($movie) {
+            $movie['genres'] = $movie->genres;
+            $movie['trailers'] = $movie->trailers;
+            $movie['actors'] = $movie->actors;
+            $movie['directors'] = $movie->directors;
             return response()->json([
                 'movie' => $movie,
             ]);
+        }
         return response()->json(['error'=>'id does not exist'], 404);
     }
 
@@ -100,15 +111,18 @@ class MovieController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $movie = Movie::findOrFail($id);
-
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|unique:movies,title,'.$id,
             'description' => 'string',
             'poster' => 'string',
             'release_date' => 'date',
             'genres' => 'required|array',
-            'genres.*' => 'integer|exists:genres,id'
+            'genres.*' => 'integer|exists:genres,id',
         ]);
 
         if ($validator->fails()) {
@@ -122,10 +136,16 @@ class MovieController extends Controller
         $movie->release_date = $request->release_date;
         $movie->save();
 
-        $movie->genres()->attach($request->genres);
+        try {
+            $movie->genres()->attach($request->genres);
+        }catch (\Exception $exception){
+            // genres already exsist.
+        }
 
         $movie['genres'] = $movie->genres;
         $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
 
         return response()->json([
             'movie' => $movie,
@@ -160,7 +180,11 @@ class MovieController extends Controller
      * @return JsonResponse
      */
     public function addTrailer(Request $request, $id){
-        $movie = Movie::findOrFail($id);
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
 
         $validator = Validator::make($request->all(), [
             'trailer' => 'required|string|unique:trailers,trailer,'
@@ -177,6 +201,8 @@ class MovieController extends Controller
 
         $movie['genres'] = $movie->genres;
         $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
 
         return response()->json([
             'movie' => $movie,
@@ -201,5 +227,155 @@ class MovieController extends Controller
             ]);
         }
         return response()->json(['error'=>'id does not exist'], 404);
+    }
+
+    /**
+     * Add Actor to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function addActor($id, $actor_id){
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
+        try {
+            $actor = Actor::findOrFail($actor_id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Actor Not Found'], 404);
+        }
+        if(!$movie->actors->contains($actor)) {
+            $movie->actors()->attach($actor);
+            $movie->load('actors');
+        }else{
+            return response()->json(['error'=>'Actor Already Exists'], 304);
+        }
+
+        $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
+
+        return response()->json([
+            'movie' => $movie,
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Remove Actor to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function removeActor($actor_id, $id){
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
+
+        try {
+            $actor = Actor::findOrFail($actor_id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Actor Not Found'], 404);
+        }
+
+        if($movie->actors->contains($actor)) {
+            $movie->actors()->detach($actor);
+            $movie->load('actors');
+        }
+        else
+            return response()->json(['error'=>'Actor Doesnt Exists'], 304);
+
+        $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
+
+        return response()->json([
+            'movie' => $movie,
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Add Director to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function addDirector($director_id, $id){
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
+
+        try {
+            $director = Director::findOrFail($director_id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Director Not Found'], 404);
+        }
+
+        if(!$movie->directors->contains($director)) {
+            $movie->directors()->attach($director);
+            $movie->load('directors');
+        }else{
+            return response()->json(['error'=>'Director Already Exists'], 304);
+        }
+
+        $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
+
+        return response()->json([
+            'movie' => $movie,
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Remove Director to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function removeDirector($director_id, $id){
+        try {
+            $movie = Movie::findOrFail($id);
+        }catch (Exception $e){
+            return response()->json(['error'=>'Movie Not Found'], 404);
+        }
+
+        try {
+            $director = Director::findOrFail($director_id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Director Not Found'], 404);
+        }
+
+        if($movie->directors->contains($director)) {
+            $movie->directors()->detach($director);
+            $movie->load('directors');
+        }
+        else
+            return response()->json(['error'=>'Director Doesnt Exists'], 304);
+
+        $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+        $movie['actors'] = $movie->actors;
+        $movie['directors'] = $movie->directors;
+
+        return response()->json([
+            'movie' => $movie,
+            'success' => true,
+        ]);
     }
 }
