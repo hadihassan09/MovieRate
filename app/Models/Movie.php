@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use PhpParser\Node\Scalar\MagicConst\Dir;
 
 class Movie extends Model
 {
@@ -35,5 +36,15 @@ class Movie extends Model
     public function trailers()
     {
         return $this->hasMany(Trailer::class);
+    }
+
+    public function actors()
+    {
+        return $this->belongsToMany(Actor::class, 'movies_actors', 'movie_id', 'actor_id');
+    }
+
+    public function directors()
+    {
+        return $this->belongsToMany(Director::class, 'movies_directors', 'movie_id', 'director_id');
     }
 }
