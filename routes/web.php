@@ -52,4 +52,10 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->get('directors/{id}', 'DirectorController@show');
     $router->post('directors', 'DirectorController@store');
     $router->delete('directors/{id}', 'DirectorController@destroy');
+
+    // Genre Route
+    $router->get('genres', 'GenreController@index');
+    $router->get('genres/{id}', 'GenreController@show');
+    $router->post('genres', 'GenreController@store');
+    $router->delete('genres/{id}', 'GenreController@destroy');
 });
