@@ -26,7 +26,7 @@ class DirectorController extends Controller
      */
     public function index()
     {
-        $directors = Director::with('user')->get();
+        $directors = Director::with('user')->with('movies')->get();
         return response()->json([
             'directors' => $directors
         ]);
@@ -52,7 +52,7 @@ class DirectorController extends Controller
             'user_id' => $request->user_id
         ]);
 
-        $director = Director::with('user')->find($request->user_id);
+        $director = Director::with('user')->with('movies')->find($request->user_id);
 
         return response()->json([
             'success' => true,
@@ -69,7 +69,8 @@ class DirectorController extends Controller
     public function show($id)
     {
         $director = Director::findOrFail($id);
-
+        $director['user'] = $director->user;
+        $director['movies'] = $director->movies;
         return response()->json([
             'director' => $director->user,
             'success' => true,
