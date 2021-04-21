@@ -28,6 +28,8 @@ class Token extends Model
      * @var array
      */
     protected $hidden = [
+        'user_id',
+        'id'
     ];
 
     public function user()
