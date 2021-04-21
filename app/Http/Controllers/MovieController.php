@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
+use App\Models\Trailer;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class MovieController extends Controller
      */
     public function index()
     {
-        $movies = Movie::with('genres')->get();
+        $movies = Movie::with('genres')->with('trailers')->get();
         return response()->json([
             'movies' => $movies,
         ]);
@@ -63,6 +64,7 @@ class MovieController extends Controller
         $movie->genres()->attach($request->genres);
 
         $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
 
         return response()->json([
             'movie' => $movie,
@@ -80,6 +82,8 @@ class MovieController extends Controller
     {
         $movie = Movie::find($id);
         $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+
         if($movie)
             return response()->json([
                 'movie' => $movie,
@@ -121,6 +125,7 @@ class MovieController extends Controller
         $movie->genres()->attach($request->genres);
 
         $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
 
         return response()->json([
             'movie' => $movie,
@@ -142,6 +147,57 @@ class MovieController extends Controller
             return response()->json([
                 'success' => 'true',
                 'message' => 'Movie Deleted Successfully'
+            ]);
+        }
+        return response()->json(['error'=>'id does not exist'], 404);
+    }
+
+    /**
+     * Add Trailer to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function addTrailer(Request $request, $id){
+        $movie = Movie::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'trailer' => 'required|string|unique:trailers,trailer,'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors'=>$validator->errors()], 422);
+        }
+
+        $trailer = Trailer::create([
+            'trailer' => $request->trailer,
+            'movie_id' => $id
+        ]);
+
+        $movie['genres'] = $movie->genres;
+        $movie['trailers'] = $movie->trailers;
+
+        return response()->json([
+            'movie' => $movie,
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Remove Trailer to the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function removeTrailer($id){
+        $trailer = Trailer::find($id);
+        if($trailer) {
+            $trailer->delete();
+            return response()->json([
+                'success' => 'true',
+                'message' => 'Trailer Deleted Successfully'
             ]);
         }
         return response()->json(['error'=>'id does not exist'], 404);

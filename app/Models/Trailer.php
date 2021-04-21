@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Movie extends Model
+class Trailer extends Model
 {
 
     /**
@@ -13,10 +13,8 @@ class Movie extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'description',
-        'poster',
-        'release_date'
+        'trailer',
+        'movie_id'
     ];
 
     /**
@@ -25,15 +23,11 @@ class Movie extends Model
      * @var array
      */
     protected $hidden = [
+        'movie_id'
     ];
 
-    public function genres()
+    public function movie()
     {
-        return $this->belongsToMany(Genre::class, 'movies_genres');
-    }
-
-    public function trailers()
-    {
-        return $this->hasMany(Trailer::class);
+        return $this->belongsTo(Movie::class);
     }
 }
