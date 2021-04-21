@@ -27,7 +27,7 @@ class MovieController extends Controller
      */
     public function index()
     {
-        $movies = Movie::all();
+        $movies = Movie::with('genres')->get();
         return response()->json([
             'movies' => $movies,
         ]);
@@ -45,7 +45,9 @@ class MovieController extends Controller
             'title' => 'required|string|unique:movies',
             'description' => 'string',
             'poster' => 'string',
-            'release_date' => 'date'
+            'release_date' => 'date',
+            'genres' => 'required|array',
+            'genres.*' => 'integer|exists:genres,id'
         ]);
 
         if ($validator->fails()) {
@@ -58,6 +60,9 @@ class MovieController extends Controller
             'poster' => $request->poster,
             'release_date' => $request->release_date
         ]);
+        $movie->genres()->attach($request->genres);
+
+        $movie['genres'] = $movie->genres;
 
         return response()->json([
             'movie' => $movie,
@@ -74,6 +79,7 @@ class MovieController extends Controller
     public function show($id)
     {
         $movie = Movie::find($id);
+        $movie['genres'] = $movie->genres;
         if($movie)
             return response()->json([
                 'movie' => $movie,
@@ -96,7 +102,9 @@ class MovieController extends Controller
             'title' => 'required|string|unique:movies,title,'.$id,
             'description' => 'string',
             'poster' => 'string',
-            'release_date' => 'date'
+            'release_date' => 'date',
+            'genres' => 'required|array',
+            'genres.*' => 'integer|exists:genres,id'
         ]);
 
         if ($validator->fails()) {
@@ -109,6 +117,10 @@ class MovieController extends Controller
             $movie->poster = $request->poster;
         $movie->release_date = $request->release_date;
         $movie->save();
+
+        $movie->genres()->attach($request->genres);
+
+        $movie['genres'] = $movie->genres;
 
         return response()->json([
             'movie' => $movie,

@@ -31,4 +31,9 @@ class Movie extends Model
      */
     protected $hidden = [
     ];
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class, 'movies_genres');
+    }
 }
