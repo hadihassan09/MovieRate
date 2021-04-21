@@ -28,4 +28,9 @@ class Director extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function movies()
+    {
+        return $this->belongsToMany(Movie::class, 'movies_directors', 'director_id');
+    }
 }
