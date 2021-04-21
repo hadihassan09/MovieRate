@@ -46,4 +46,10 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->get('actors/{id}', 'ActorController@show');
     $router->post('actors', 'ActorController@store');
     $router->delete('actors/{id}', 'ActorController@destroy');
+
+    // Director Route
+    $router->get('directors', 'DirectorController@index');
+    $router->get('directors/{id}', 'DirectorController@show');
+    $router->post('directors', 'DirectorController@store');
+    $router->delete('directors/{id}', 'DirectorController@destroy');
 });
