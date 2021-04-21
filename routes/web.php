@@ -45,6 +45,14 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->post('movies/{id}/trailers', 'MovieController@addTrailer');
     $router->delete('movies/trailers/{id}', 'MovieController@removeTrailer');
 
+    // Movie Actors
+    $router->patch('movies/{id}/actors/{actor_id}', 'MovieController@addActor');
+    $router->delete('movies/{id}/actors/{actor_id}', 'MovieController@removeActor');
+
+    // Movie Directors
+    $router->patch('movies/{id}/directors/{director_id}', 'MovieController@addDirector');
+    $router->delete('movies/{id}/directors/{director_id}', 'MovieController@removeDirector');
+
     // Actors Route
     $router->get('actors', 'ActorController@index');
     $router->get('actors/{id}', 'ActorController@show');
