@@ -70,4 +70,10 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->get('genres/{id}', 'GenreController@show');
     $router->post('genres', 'GenreController@store');
     $router->delete('genres/{id}', 'GenreController@destroy');
+
+    // Rating Route
+    $router->get('ratings', 'RatingController@index');
+    $router->get('ratings/{id}', 'RatingController@show');
+    $router->post('ratings', 'RatingController@store');
+    $router->delete('ratings/{id}', 'RatingController@destroy');
 });
