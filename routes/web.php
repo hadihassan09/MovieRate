@@ -36,12 +36,12 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
 
     // Movie Routes
     $router->get('movies', 'MovieController@index');
-    $router->get('movies/{id}', 'MovieController@show');
+    $router->get('movies/{id:[\d]+}', 'MovieController@show');
     $router->post('movies', 'MovieController@store');
     $router->post('movies/{id}', 'MovieController@update');
     $router->delete('movies/{id}', 'MovieController@destroy');
 
-    $router->get('movies/top/{amount}', 'MovieController@topMovies');
+    $router->get('movies/top', 'MovieController@topMovies');
 
     // Movie Trailers
     $router->post('movies/{id}/trailers', 'MovieController@addTrailer');

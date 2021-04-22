@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExportMovies;
 use App\Models\Actor;
 use App\Models\Director;
 use App\Models\Movie;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use mysql_xdevapi\Exception;
@@ -405,19 +407,13 @@ class MovieController extends Controller
     /**
      * Returns the Top Amount of the specified resource in storage.
      *
-     * @param  int  $amount
      * @return JsonResponse
      */
-    public function topMovies($amount)
+    public function topMovies()
     {
-        $movies = Movie::
-            with('genres')
-            ->with('trailers')
-            ->get()
-            ->sortByDesc('average_rating')
-            ->take($amount);
+        return Queue::push(new ExportMovies());
         return response()->json([
-            'movies' => $movies,
+            'success' => true
         ]);
     }
 }

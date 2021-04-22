@@ -2,7 +2,10 @@
 
 namespace App\Jobs;
 
-class ExampleJob extends Job
+use App\Exports\MoviesExport;
+use Maatwebsite\Excel\Facades\Excel;
+
+class ExportMovies extends Job
 {
     /**
      * Create a new job instance.
@@ -21,6 +24,6 @@ class ExampleJob extends Job
      */
     public function handle()
     {
-        //
+        Excel::store(new MoviesExport(), 'movies.xlsx');
     }
 }
