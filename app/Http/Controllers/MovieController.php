@@ -411,7 +411,7 @@ class MovieController extends Controller
      */
     public function topMovies()
     {
-        return Queue::push(new ExportMovies());
+        Queue::push(new ExportMovies());
         return response()->json([
             'success' => true
         ]);
