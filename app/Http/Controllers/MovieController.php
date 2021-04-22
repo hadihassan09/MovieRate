@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use mysql_xdevapi\Exception;
 
@@ -52,7 +53,7 @@ class MovieController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|unique:movies',
             'description' => 'string',
-            'poster' => 'string',
+            'poster' => 'file|mimes:jpg,bmp,png',
             'release_date' => 'date',
             'genres' => 'required|array',
             'genres.*' => 'integer|exists:genres,id'
@@ -61,11 +62,18 @@ class MovieController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors'=>$validator->errors()], 422);
         }
+        $poster = '';
+        if ($request->hasFile('poster')) {
+            $file_extention = $request->file('poster')->extension();
+            $request->file('poster')->move(storage_path('/posters'), $request->title.'.'.$file_extention);
+            $poster = 'http://moverate/'.Storage::url('posters/'.$request->title.'.'.$file_extention);
+        }
+
 
         $movie = Movie::create([
             'title' => $request->title,
             'description' => $request->description,
-            'poster' => $request->poster,
+            'poster' => $poster,
             'release_date' => $request->release_date
         ]);
         $movie->genres()->attach($request->genres);
@@ -120,7 +128,7 @@ class MovieController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|unique:movies,title,'.$id,
             'description' => 'string',
-            'poster' => 'string',
+            'poster' => 'file|mimes:jpg,bmp,png',
             'release_date' => 'date',
             'genres' => 'required|array',
             'genres.*' => 'integer|exists:genres,id',
@@ -130,10 +138,17 @@ class MovieController extends Controller
             return response()->json(['errors'=>$validator->errors()], 422);
         }
 
+        $poster = '';
+        if ($request->hasFile('poster')) {
+            $file_extention = $request->file('poster')->extension();
+            $request->file('poster')->move(storage_path('/posters'), $request->title.'.'.$file_extention);
+            $poster = 'http://moverate/'.Storage::url('posters/'.$request->title.'.'.$file_extention);
+        }
+
         $movie->title = $request->title;
         $movie->description = $request->description;
         if($request->poster)
-            $movie->poster = $request->poster;
+            $movie->poster = $poster;
         $movie->release_date = $request->release_date;
         $movie->save();
 

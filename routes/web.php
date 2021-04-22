@@ -38,7 +38,7 @@ $router->group(['middleware' => 'auth', 'prefix'=> 'api/'], function () use ($ro
     $router->get('movies', 'MovieController@index');
     $router->get('movies/{id}', 'MovieController@show');
     $router->post('movies', 'MovieController@store');
-    $router->put('movies/{id}', 'MovieController@update');
+    $router->post('movies/{id}', 'MovieController@update');
     $router->delete('movies/{id}', 'MovieController@destroy');
 
     // Movie Trailers
