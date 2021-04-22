@@ -37,7 +37,11 @@ class AuthController extends Controller
             return response()->json(['errors'=>$validator->errors()], 422);
         }
 
-        $user = User::where('email', $request->input('email'))->firstOrFail();
+        try {
+            $user = User::where('email', $request->input('email'))->firstOrFail();
+        }catch (\Exception $e){
+            return response()->json(['status' => 'Incorrect Credentials'],401);
+        }
 
         if(Hash::check($request->input('password'), $user->password)){
 

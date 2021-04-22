@@ -66,7 +66,11 @@ class GenreController extends Controller
      */
     public function show($id)
     {
-        $genre = Genre::findOrFail($id);
+        try {
+            $genre = Genre::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Genre Not Found'], 404);
+        }
 
         return response()->json([
             'genre' => $genre,

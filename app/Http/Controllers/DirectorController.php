@@ -68,7 +68,12 @@ class DirectorController extends Controller
      */
     public function show($id)
     {
-        $director = Director::findOrFail($id);
+        try {
+            $director = Director::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Director Not Found'], 404);
+        }
+
         $director['user'] = $director->user;
         $director['movies'] = $director->movies;
         return response()->json([

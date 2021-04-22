@@ -68,7 +68,12 @@ class ActorController extends Controller
      */
     public function show($id)
     {
-        $actor = Actor::findOrFail($id);
+        try {
+            $actor = Actor::findOrFail($id);
+        }catch (\Exception $e){
+            return response()->json(['error'=>'Actor Not Found'], 404);
+        }
+
         $actor['user'] = $actor->user;
         $actor['movies'] = $actor->movies;
 
