@@ -9,6 +9,7 @@ use App\Models\Trailer;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use mysql_xdevapi\Exception;
 
@@ -34,8 +35,6 @@ class MovieController extends Controller
         $movies = Movie::
             with('genres')
             ->with('trailers')
-            ->with('actors')
-            ->with('directors')
             ->get();
         return response()->json([
             'movies' => $movies,
@@ -72,8 +71,9 @@ class MovieController extends Controller
         $movie->genres()->attach($request->genres);
 
         $movie['genres'] = $movie->genres;
-        $movie['trailers'] = $movie->trailers;
-        $movie['directors'] = $movie->directors;
+        $movie['trailers'] = [];
+        $movie['directors'] = [];
+        $movie['ratings'] = [];
 
         return response()->json([
             'movie' => $movie,
@@ -95,6 +95,7 @@ class MovieController extends Controller
             $movie['trailers'] = $movie->trailers;
             $movie['actors'] = $movie->actors;
             $movie['directors'] = $movie->directors;
+            $movie['ratings'] =  $movie->ratings;
             return response()->json([
                 'movie' => $movie,
             ]);
@@ -146,6 +147,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,
@@ -203,6 +205,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,
@@ -258,6 +261,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,
@@ -296,6 +300,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,
@@ -334,6 +339,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,
@@ -372,6 +378,7 @@ class MovieController extends Controller
         $movie['trailers'] = $movie->trailers;
         $movie['actors'] = $movie->actors;
         $movie['directors'] = $movie->directors;
+        $movie['ratings'] = $movie->ratings;
 
         return response()->json([
             'movie' => $movie,

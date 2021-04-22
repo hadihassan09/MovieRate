@@ -51,12 +51,16 @@ class RatingController extends Controller
             return response()->json(['errors'=>$validator->errors()], 422);
         }
 
-        $rating = Rating::create([
-            'movie_id' => $request->movie_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'user_id' => Auth::user()->id
-        ]);
+        try {
+            $rating = Rating::create([
+                'movie_id' => $request->movie_id,
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+                'user_id' => Auth::user()->id
+            ]);
+        }catch (\Exception $e){
+            return response()->json(['errors'=>'Rating Already Exists'], 422);
+        }
 
         return response()->json([
             'success' => true,

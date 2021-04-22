@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Scalar\MagicConst\Dir;
 
 class Movie extends Model
@@ -28,6 +29,8 @@ class Movie extends Model
     protected $hidden = [
     ];
 
+    protected $appends = ['average_rating'];
+
     public function genres()
     {
         return $this->belongsToMany(Genre::class, 'movies_genres');
@@ -51,5 +54,10 @@ class Movie extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return $this->hasMany(Rating::class)->avg('rating') ?: 0;
     }
 }
