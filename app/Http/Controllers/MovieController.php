@@ -400,4 +400,24 @@ class MovieController extends Controller
             'success' => true,
         ]);
     }
+
+
+    /**
+     * Returns the Top Amount of the specified resource in storage.
+     *
+     * @param  int  $amount
+     * @return JsonResponse
+     */
+    public function topMovies($amount)
+    {
+        $movies = Movie::
+            with('genres')
+            ->with('trailers')
+            ->get()
+            ->sortByDesc('average_rating')
+            ->take($amount);
+        return response()->json([
+            'movies' => $movies,
+        ]);
+    }
 }
